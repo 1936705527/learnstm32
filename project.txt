@@ -1,1 +1,42 @@
-start
+#include "stm32f10x.h"                  // Device header
+#include "Delay.h"
+#include "OLED.h"
+#include "Motor.h"
+#include "Key.h"
+#include "Encoder.h"
+#include "Timer.h"
+#include "Serial.h"
+
+int32_t speed=0;
+
+void TIM4_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM4, TIM_IT_Update) == SET)
+	{
+		speed=Encoder_Get();
+		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+		printf("%d\n",speed);
+	}
+}
+
+int main(void)
+{
+	/*模块初始化*/
+	OLED_Init();		//OLED初始化
+	Motor_Init();		//直流电机初始化
+	Key_Init();			//按键初始化
+	Encoder_Init();
+	Timer_Init();
+	Serial_Init();
+	
+	//Serial_SendNumber(speed,5);
+	printf("%d\n",speed);
+	
+	while (1)
+	{
+		if (Serial_GetRxFlag()==1){
+			speed=data();
+			printf("%d\n",speed);
+		}
+	}
+}
